@@ -167,6 +167,24 @@ button:active { transform: translateY(1px); }
 }
 @keyframes carimbo { from { transform: rotate(-4deg) scale(1.8); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
 
+.scene {
+  margin: 4px 0 18px;
+  border: 1.5px solid var(--ink);
+  background:
+    repeating-linear-gradient(0deg, rgba(43,29,19,.06) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(43,29,19,.06) 0 1px, transparent 1px 24px),
+    rgba(255,255,255,.2);
+  max-width: 100%;
+}
+.scene svg { display: block; width: 100%; height: auto; }
+.route-base { fill: none; stroke: var(--paper-line); stroke-width: 3; stroke-dasharray: 3 9; stroke-linecap: round; }
+.route-prog { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: tracar 4s cubic-bezier(.45,0,.25,1) both; }
+@keyframes tracar { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.pulse { fill: none; stroke: var(--ember); stroke-width: 2.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: pulso 1.8s ease-out 4s infinite; }
+@keyframes pulso { from { transform: scale(.4); opacity: .9; } to { transform: scale(2.6); opacity: 0; } }
+.lbl { font-family: var(--font-stamp); font-size: 15px; letter-spacing: .12em; text-transform: uppercase; fill: var(--ink-soft); }
+.eta { font-family: var(--font-stamp); font-size: 14px; letter-spacing: .08em; color: var(--ink-soft); margin: 0 0 18px; }
+
 .sign {
   margin-top: 28px; padding-top: 14px;
   border-top: 2px solid var(--ink);
@@ -218,6 +236,36 @@ html { background: #241912; }
 
     <section class="confirmed" id="confirmado" hidden>
       <div class="stamp">Confirmado</div>
+      <div class="scene">
+        <svg viewBox="0 0 500 190" role="img" aria-label="Um carro percorre o caminho até o ponto de localização do café da manhã">
+          <path class="route-base" d="M50 150 C130 150 150 60 235 80 S335 150 395 130"/>
+          <path id="rota" class="route-prog" pathLength="1" d="M50 150 C130 150 150 60 235 80 S335 150 395 130"/>
+          <circle cx="50" cy="150" r="7" fill="#d8c29c" stroke="#2b1d13" stroke-width="3"/>
+          <text class="lbl" x="34" y="177">Você</text>
+          <g transform="translate(430 130)">
+            <ellipse class="pulse" cx="0" cy="0" rx="14" ry="5"/>
+            <ellipse cx="0" cy="0" rx="9" ry="3.5" fill="#2b1d13" opacity=".35"/>
+            <path d="M0 0 C-12 -16 -16 -24 -16 -32 a16 16 0 1 1 32 0 C16 -24 12 -16 0 0 Z" fill="#9a4a22" stroke="#7d3a19" stroke-width="2"/>
+            <circle cx="0" cy="-32" r="6" fill="#d8c29c"/>
+          </g>
+          <text class="lbl" x="490" y="170" text-anchor="end">Local secreto</text>
+          <g id="carro">
+            <g transform="scale(1.25)">
+              <rect x="-20" y="-10" width="40" height="11" rx="3" fill="#9a4a22" stroke="#2b1d13" stroke-width="1.5"/>
+              <path d="M-10 -10 L-6 -18 L8 -18 L13 -10 Z" fill="#7d3a19" stroke="#2b1d13" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M-5 -10 L-2.5 -15.5 L2 -15.5 L2 -10 Z M5 -10 L5 -15.5 L8 -15.5 L10.5 -10 Z" fill="#d8c29c"/>
+              <circle cx="-11" cy="2" r="4.6" fill="#2b1d13"/>
+              <circle cx="11" cy="2" r="4.6" fill="#2b1d13"/>
+              <circle cx="-11" cy="2" r="1.6" fill="#d8c29c"/>
+              <circle cx="11" cy="2" r="1.6" fill="#d8c29c"/>
+            </g>
+            <animateMotion id="drive" dur="4s" begin="indefinite" fill="freeze" rotate="auto" calcMode="spline" keyTimes="0;1" keyPoints="0;1" keySplines=".45 0 .25 1">
+              <mpath href="#rota"/>
+            </animateMotion>
+          </g>
+        </svg>
+      </div>
+      <p class="eta">O carro já está a caminho. O destino continua em segredo.</p>
       <p class="ask">Combinado, então.</p>
       <p>Seu lugar está reservado. Me avise que você aceitou e aguarde o próximo bilhete, com as instruções para a manhã.</p>
     </section>
@@ -251,6 +299,12 @@ html { background: #241912; }
   sim.addEventListener('click', function () {
     pergunta.hidden = true;
     confirmado.hidden = false;
+    var carro = document.getElementById('carro');
+    var drive = document.getElementById('drive');
+    var reduzir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function chegou() { carro.setAttribute('transform', 'translate(395 130)'); }
+    if (reduzir) { chegou(); return; }
+    try { drive.beginElement(); } catch (e) { chegou(); }
   });
 })();
 </script>
